@@ -1,101 +1,124 @@
 blueprint:
-  name: Z2M - Namron 2 channel (MQTT event)
-  description: Handle Namron 2-channel remote using MQTT action events
+  name: Namron K4 – 2 channel Zigbee2MQTT (event based)
+  description: Handle all button events from Namron K4 2-channel switch via Zigbee2MQTT.
   domain: automation
 
   input:
-    device_name:
-      name: Zigbee2MQTT device name
-      description: The exact name of the device in Zigbee2MQTT
+    zigbee_device:
+      name: Zigbee2MQTT Device
+      description: Select the Namron K4 switch
       selector:
-        text: {}
+        device:
+          filter:
+            - integration: mqtt
+          multiple: false
 
-    # --- BUTTON 1 ---
-    button_1_on:
-      name: Button 1 - on
-      default: []
-      selector:
+    # Channel 1 actions
+    ch1_on:
+      name: Channel 1 – ON
+      selector: 
         action: {}
-    button_1_off:
-      name: Button 1 - off
       default: []
-      selector:
-        action: {}
-    button_1_bright_up:
-      name: Button 1 - brightness up (hold)
-      default: []
-      selector:
-        action: {}
-    button_1_bright_down:
-      name: Button 1 - brightness down (hold)
-      default: []
-      selector:
-        action: {}
 
-    # --- BUTTON 2 ---
-    button_2_on:
-      name: Button 2 - on
-      default: []
-      selector:
+    ch1_off:
+      name: Channel 1 – OFF
+      selector: 
         action: {}
-    button_2_off:
-      name: Button 2 - off
       default: []
-      selector:
+
+    ch1_bright_up:
+      name: Channel 1 – Brightness up (hold)
+      selector: 
         action: {}
-    button_2_bright_up:
-      name: Button 2 - brightness up (hold)
       default: []
-      selector:
+
+    ch1_bright_down:
+      name: Channel 1 – Brightness down (hold)
+      selector: 
         action: {}
-    button_2_bright_down:
-      name: Button 2 - brightness down (hold)
       default: []
-      selector:
+
+    ch1_bright_stop:
+      name: Channel 1 – Brightness stop (release)
+      selector: 
         action: {}
+      default: []
+
+    # Channel 2 actions
+    ch2_on:
+      name: Channel 2 – ON
+      selector: 
+        action: {}
+      default: []
+
+    ch2_off:
+      name: Channel 2 – OFF
+      selector: 
+        action: {}
+      default: []
+
+    ch2_bright_up:
+      name: Channel 2 – Brightness up (hold)
+      selector: 
+        action: {}
+      default: []
+
+    ch2_bright_down:
+      name: Channel 2 – Brightness down (hold)
+      selector: 
+        action: {}
+      default: []
+
+    ch2_bright_stop:
+      name: Channel 2 – Brightness stop (release)
+      selector: 
+        action: {}
+      default: []
+
+
+trigger_variables:
+  dev: !input zigbee_device
 
 trigger:
-  - platform: mqtt
-    topic: "zigbee2mqtt/+"
-    payload_available: ""
+  - platform: event
+    event_type: mqtt
+    event_data:
+      topic: "zigbee2mqtt/{{ device_entities(dev)[0].split('.')[1] }}/action"
 
-variables:
-  device: !input device_name
-  command: "{{ trigger.payload_json.action }}"
-  topic: "{{ trigger.topic }}"
-
-condition:
-  - condition: template
-    value_template: "{{ topic == 'zigbee2mqtt/' ~ device }}"
+condition: []
 
 action:
   - choose:
 
-      # --- BUTTON 1 ---
-      - conditions: "{{ command == 'on_l1' }}"
-        sequence: !input button_1_on
+      # ---------- CHANNEL 1 ----------
+      - conditions: "{{ trigger.event.data.payload == 'on_l1' }}"
+        sequence: !input ch1_on
 
-      - conditions: "{{ command == 'off_l1' }}"
-        sequence: !input button_1_off
+      - conditions: "{{ trigger.event.data.payload == 'off_l1' }}"
+        sequence: !input ch1_off
 
-      - conditions: "{{ command == 'brightness_move_up_l1' }}"
-        sequence: !input button_1_bright_up
+      - conditions: "{{ trigger.event.data.payload == 'brightness_move_up_l1' }}"
+        sequence: !input ch1_bright_up
 
-      - conditions: "{{ command == 'brightness_move_down_l1' }}"
-        sequence: !input button_1_bright_down
+      - conditions: "{{ trigger.event.data.payload == 'brightness_move_down_l1' }}"
+        sequence: !input ch1_bright_down
+
+      - conditions: "{{ trigger.event.data.payload == 'brightness_stop_l1' }}"
+        sequence: !input ch1_bright_stop
 
 
-      # --- BUTTON 2 ---
-      - conditions: "{{ command == 'on_l2' }}"
-        sequence: !input button_2_on
+      # ---------- CHANNEL 2 ----------
+      - conditions: "{{ trigger.event.data.payload == 'on_l2' }}"
+        sequence: !input ch2_on
 
-      - conditions: "{{ command == 'off_l2' }}"
-        sequence: !input button_2_off
+      - conditions: "{{ trigger.event.data.payload == 'off_l2' }}"
+        sequence: !input ch2_off
 
-      - conditions: "{{ command == 'brightness_move_up_l2' }}"
-        sequence: !input button_2_bright_up
+      - conditions: "{{ trigger.event.data.payload == 'brightness_move_up_l2' }}"
+        sequence: !input ch2_bright_up
 
-      - conditions: "{{ command == 'brightness_move_down_l2' }}"
-        sequence: !input button_2_bright_down
+      - conditions: "{{ trigger.event.data.payload == 'brightness_move_down_l2' }}"
+        sequence: !input ch2_bright_down
 
-mode: restart
+      - conditions: "{{ trigger.event.data.payload == 'brightness_stop_l2' }}"
+        sequence: !input ch2_bright_stop
