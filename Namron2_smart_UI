@@ -1,96 +1,93 @@
 blueprint:
-  name: Namron K4 – 2 channel Zigbee2MQTT (event based)
-  description: Handle all button events from Namron K4 2-channel switch using Zigbee2MQTT event payloads.
+  name: Namron K4 – Zigbee2MQTT (Smart-UI compatible)
+  description: Fully compatible MQTT-based blueprint with working Smart-UI action fields.
   domain: automation
 
   input:
     zigbee_device:
       name: Zigbee2MQTT Device
-      description: Select the Namron K4 remote (Z2M device)
+      description: Select your Namron K4 device
       selector:
         device:
           filter:
             - integration: mqtt
-          multiple: false
 
-    # Channel 1 actions
+    # Channel 1
     ch1_on:
       name: Channel 1 – ON
-      selector: 
-        action: {}
+      selector:
+        object: {}
       default: []
 
     ch1_off:
       name: Channel 1 – OFF
-      selector: 
-        action: {}
+      selector:
+        object: {}
       default: []
 
     ch1_bright_up:
-      name: Channel 1 – Brightness up (hold)
-      selector: 
-        action: {}
+      name: Channel 1 – Brightness Up (hold)
+      selector:
+        object: {}
       default: []
 
     ch1_bright_down:
-      name: Channel 1 – Brightness down (hold)
-      selector: 
-        action: {}
+      name: Channel 1 – Brightness Down (hold)
+      selector:
+        object: {}
       default: []
 
     ch1_bright_stop:
-      name: Channel 1 – Brightness stop (release)
-      selector: 
-        action: {}
+      name: Channel 1 – Stop dim (release)
+      selector:
+        object: {}
       default: []
 
-    # Channel 2 actions
+    # Channel 2
     ch2_on:
       name: Channel 2 – ON
-      selector: 
-        action: {}
+      selector:
+        object: {}
       default: []
 
     ch2_off:
       name: Channel 2 – OFF
-      selector: 
-        action: {}
+      selector:
+        object: {}
       default: []
 
     ch2_bright_up:
-      name: Channel 2 – Brightness up (hold)
-      selector: 
-        action: {}
+      name: Channel 2 – Brightness Up (hold)
+      selector:
+        object: {}
       default: []
 
     ch2_bright_down:
-      name: Channel 2 – Brightness down (hold)
-      selector: 
-        action: {}
+      name: Channel 2 – Brightness Down (hold)
+      selector:
+        object: {}
       default: []
 
     ch2_bright_stop:
-      name: Channel 2 – Brightness stop (release)
-      selector: 
-        action: {}
+      name: Channel 2 – Stop dim (release)
+      selector:
+        object: {}
       default: []
 
-
-# Create a variable for the Z2M topic name from the MQTT device
 trigger_variables:
   dev: !input zigbee_device
-  z2m_name: "{{ device_attr(dev, 'name') | lower | replace(' ', '_') }}"
+  z2m: "{{ device_attr(dev, 'name') | lower | replace(' ', '_') }}"
 
 trigger:
   - platform: mqtt
-    topic: "zigbee2mqtt/{{ z2m_name }}/action"
+    topic: "zigbee2mqtt/{{ z2m }}/action"
 
 condition: []
 
 action:
   - choose:
 
-      # ---------- CHANNEL 1 ----------
+      # ----- CHANNEL 1 -----
       - conditions: "{{ trigger.payload == 'on_l1' }}"
         sequence: !input ch1_on
 
@@ -106,8 +103,7 @@ action:
       - conditions: "{{ trigger.payload == 'brightness_stop_l1' }}"
         sequence: !input ch1_bright_stop
 
-
-      # ---------- CHANNEL 2 ----------
+      # ----- CHANNEL 2 -----
       - conditions: "{{ trigger.payload == 'on_l2' }}"
         sequence: !input ch2_on
 
