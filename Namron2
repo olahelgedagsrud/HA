@@ -1,0 +1,101 @@
+blueprint:
+  name: Z2M - Namron 2 channel (MQTT event)
+  description: Handle Namron 2-channel remote using MQTT action events
+  domain: automation
+
+  input:
+    device_name:
+      name: Zigbee2MQTT device name
+      description: The exact name of the device in Zigbee2MQTT
+      selector:
+        text: {}
+
+    # --- BUTTON 1 ---
+    button_1_on:
+      name: Button 1 - on
+      default: []
+      selector:
+        action: {}
+    button_1_off:
+      name: Button 1 - off
+      default: []
+      selector:
+        action: {}
+    button_1_bright_up:
+      name: Button 1 - brightness up (hold)
+      default: []
+      selector:
+        action: {}
+    button_1_bright_down:
+      name: Button 1 - brightness down (hold)
+      default: []
+      selector:
+        action: {}
+
+    # --- BUTTON 2 ---
+    button_2_on:
+      name: Button 2 - on
+      default: []
+      selector:
+        action: {}
+    button_2_off:
+      name: Button 2 - off
+      default: []
+      selector:
+        action: {}
+    button_2_bright_up:
+      name: Button 2 - brightness up (hold)
+      default: []
+      selector:
+        action: {}
+    button_2_bright_down:
+      name: Button 2 - brightness down (hold)
+      default: []
+      selector:
+        action: {}
+
+trigger:
+  - platform: mqtt
+    topic: "zigbee2mqtt/+"
+    payload_available: ""
+
+variables:
+  device: !input device_name
+  command: "{{ trigger.payload_json.action }}"
+  topic: "{{ trigger.topic }}"
+
+condition:
+  - condition: template
+    value_template: "{{ topic == 'zigbee2mqtt/' ~ device }}"
+
+action:
+  - choose:
+
+      # --- BUTTON 1 ---
+      - conditions: "{{ command == 'on_l1' }}"
+        sequence: !input button_1_on
+
+      - conditions: "{{ command == 'off_l1' }}"
+        sequence: !input button_1_off
+
+      - conditions: "{{ command == 'brightness_move_up_l1' }}"
+        sequence: !input button_1_bright_up
+
+      - conditions: "{{ command == 'brightness_move_down_l1' }}"
+        sequence: !input button_1_bright_down
+
+
+      # --- BUTTON 2 ---
+      - conditions: "{{ command == 'on_l2' }}"
+        sequence: !input button_2_on
+
+      - conditions: "{{ command == 'off_l2' }}"
+        sequence: !input button_2_off
+
+      - conditions: "{{ command == 'brightness_move_up_l2' }}"
+        sequence: !input button_2_bright_up
+
+      - conditions: "{{ command == 'brightness_move_down_l2' }}"
+        sequence: !input button_2_bright_down
+
+mode: restart
